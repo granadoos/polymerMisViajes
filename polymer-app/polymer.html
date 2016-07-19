@@ -1,0 +1,136 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icons/maps-icons.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/google-map/google-map.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<dom-module id="polymer-demo">
+    <style>
+    google-map {
+      height: 400px;
+    }
+    paper-card{
+      height: 200px;
+      width:  200px;
+    }
+    </style>
+    <template>
+        <paper-drawer-panel>
+            <paper-header-panel drawer>
+              <paper-toolbar class="medium-tall">
+              </paper-toolbar>
+              <paper-menu id="miMenu" selected="{{selCiudad}}">
+                  <template is="dom-repeat" items="{{aCiudades}}">
+                    <paper-item>[[item.nombre]]</paper-item>
+                  </template>
+                </paper-menu>
+                <div>
+
+                </div>
+            </paper-header-panel>
+            <paper-header-panel main>
+                <paper-toolbar class="medium-tall">
+                    <paper-icon-button icon="menu" paper-drawer-toggle></paper-icon-button>
+                    <span class="title">Ciudades del Mundo</span>
+                     <paper-tabs id="tabs" class="bottom self-end" selected="{{selTab}}">
+                        <paper-tab>Mapa</paper-tab>
+                        <paper-tab>Monumentos</paper-tab>
+                    </paper-tabs>
+                </paper-toolbar>
+                <div>
+                    <iron-pages selected="{{selTab}}">
+                        <div>
+                            <h1> Mapa de {{nombreCiudad(aCiudades,selCiudad)}}</h1>
+                            <google-map latitude="[[aCiudades.0.lat]]" longitude="[[aCiudades.0.long]]" zoom=14>
+                              <template is="dom-repeat" items="{{monumentosCiudad(aCiudades,selCiudad)}}" as="monumento">
+                                <google-map-marker latitude={{monumento.lat}} longitude={{monumento.long}} title={{monumento.nombre}}></google-map-marker>
+                              </template>
+                            </google-map>
+                        </div>
+                        <div>
+                        <h1> Listado de Monumentos de {{nombreCiudad(aCiudades,selCiudad)}}</h1>
+                            <template is="dom-repeat" items="{{monumentosCiudad(aCiudades,selCiudad)}}" as="monumento">
+                                <paper-item>{{monumento.nombre}}</paper-item>
+                                <paper-card heading="" image={{monumento.foto}} >
+                                </paper-card>
+                          </template>
+
+                        </div>
+                    </iron-pages>
+               </div>
+            </paper-header-panel>
+        </paper-drawer-panel>
+    </template>
+</dom-module>
+<script>
+    //llamamos al objeto que  inicializa el componente.
+    Polymer({
+        is:"polymer-demo",
+        ready: function(){
+          var miMenus=document.querySelector('paper-menu');
+          var miTab=document.querySelector('paper-tabs');
+
+          miMenus.select(0);
+          miTab.select(0);
+        },
+        properties: {
+          aCiudades: {
+          type: Array,
+          value: [
+            {"nombre":"Florencia","long":"11.248","lat":"43.771",
+                "monumentos":[
+
+                  {"nombre":"Santa Maria del Fiore","lat":"43.7731489","long":"11.2537715","foto":"http://queverenflorencia.com/wp-content/uploads/2015/11/catedral-florencia-duomo-lateral.jpg"},
+                  {"nombre":"Galleria dell'Accademia","lat":"43.7768209","long":"11.2565267","foto":"http://www.carnevale-di-venezia.it/wp-content/uploads/2015/07/gallerie.jpg"}
+            ]},
+            {"nombre":"Paris","long":"2.277517","lat":"48.8589507",
+            "monumentos":[
+
+              {"nombre":"Torre Effiel","lat":"48.8583736","long":"2.2922926","foto":"http://cde.3.elcomercio.pe/ima/0/1/2/1/0/1210348.jpg"},
+              {"nombre":"Louvre","lat":"48.8606146","long":"2.3354553","foto":"https://media-cdn.tripadvisor.com/media/photo-s/05/6b/c7/ee/musee-du-louvre.jpg"}
+            ]},
+            {"nombre":"Bruselas","long":"4.3053501","lat":"50.8550624",
+            "monumentos":[
+              {"nombre":"Mannaken Pis","lat":"50.8449967","long":"4.3477891","foto":"http://images.opt.be/images/elto_big/17150_3.jpg"},
+              {"nombre":"Atomium","lat":"50.8949444","long":"4.3393583","foto":"http://images.opt.be/images/elto/61423_1.jpg"}
+            ]},
+            {"nombre":"Roma","long":"12.3959126","lat":"41.9102415",
+            "monumentos":[
+              
+              {"nombre":"Coliseo Romano","lat":"41.8902142","long":"12.4900422","foto":"https://cdn.civitatis.com/guias/roma/fotos/coliseo-roma-noche.jpg"},
+              {"nombre":"Fontana de Trevi","lat":"41.9009365","long":"12.4811243","foto":"https://cdn.civitatis.com/guias/roma/fotos/fontana-trevi.jpg"}
+            ]}
+          ]
+        }
+        },
+
+        monumentosCiudad: function(miArray,miIndice){
+          console.log("Indice:"+miIndice)
+          return miArray[miIndice].monumentos;
+        },
+        nombreCiudad: function(miArray,miIndice){
+          console.log("Indice:"+miIndice)
+          return miArray[miIndice].nombre;
+        },
+        listeners:{
+          'miMenu.click':'miMenuClick'
+        },
+        miMenuClick: function(e){
+
+          var miMenus=document.querySelector('paper-menu');
+          var gMap=document.querySelector('google-map');
+          var ciudad= this.get('aCiudades.#'+miMenus.selected);
+
+          gMap.latitude=ciudad.lat;
+          gMap.longitude=ciudad.long;
+        }
+    });
+</script>
